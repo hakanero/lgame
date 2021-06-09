@@ -1,0 +1,19 @@
+body{
+    background-color: whitesmoke;
+}
+#l-name{
+    color: teal;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    text-align: center;
+}
+#game{
+    border:solid thick;
+}
+.gi{
+    border: solid thin;
+    padding: 2em;
+}
+#game-table{
+    border-collapse: collapse;
+}
