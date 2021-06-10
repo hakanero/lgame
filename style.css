@@ -9,12 +9,25 @@ body{
 }
 #game{
     border:solid thick;
+    margin:auto;
+}
+#game-div{
+    float: left;
+    width: 60%;
 }
 .gi{
     border: solid thin;
     padding: 2em;
 }
-#game-table{
-    border-collapse: collapse;
-    margin: auto;
+#hi-score{
+    float: left;
+    width: 20%;
+}
+#timer{
+    float: left;
+    width: 20%;
+}
+footer{
+    position: fixed;
+    bottom: 0;
 }
