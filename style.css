@@ -1,9 +1,12 @@
 body{
-    background-color: whitesmoke;
+    background-image: url('https://image.freepik.com/free-photo/white-concrete-wall_53876-92803.jpg');
+    background-attachment: fixed;
+}
+.baslik{
+    font-family: 'Architects Daughter',cursive;
 }
 #l-name{
     color: teal;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 100%;
     text-align: center;
 }
