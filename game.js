@@ -1,4 +1,5 @@
 ﻿var gamePiece;
+var mousePos = {x:0,y:0};
 function startGame(){
 	gameArea.start();
 	gamePiece = new cell(30,30,"red",10,120);
@@ -6,11 +7,12 @@ function startGame(){
 var gameArea = {
 	canvas:document.getElementById("game"),
 	start:function(){
-		this.canvas.width=480;
-		this.canvas.height=270;
 		this.context=this.canvas.getContext("2d");
-		document.body.insertBefore(this.canvas,document.body.childNodes[0]);
 	this.interval = setInterval(updateGame,20);
+	window.addEventListener("mousemove",function(e){
+		mousePos.x = e.pageX;
+		mousePos.y = e.pageY;
+	})
 	},
 	clear:function(){
 		this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -29,7 +31,8 @@ function cell(width,height,color,x,y){
 }
 function updateGame(){
 	gameArea.clear();
-	gamePiece.x += 1;
+	gamePiece.x = mousePos.x;
+	gamePiece.y = mousePos.y;
 	gamePiece.update();
 }
 startGame();
