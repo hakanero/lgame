@@ -17,15 +17,18 @@
     float: left;
     width: 60%;
 }
-#hi-score{
+#hiscore-div{
     float: left;
     width: 20%;
 }
-#timer{
+#timer-div{
     float: left;
     width: 20%;
 }
 footer{
     position: fixed;
     bottom: 0;
+}
+.container{
+	text-align:center;
 }
