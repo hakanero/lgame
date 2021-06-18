@@ -1,17 +1,35 @@
-var gins = [[],[],[],[]];
-for(var i=1;i<5;i=i+1){
-    for(var j=1;j<5;j=j+1){
-        gins[i-1].push(document.getElementById(`gi${i}-${j}`));
-    }
+﻿var gamePiece;
+function startGame(){
+	gameArea.start();
+	gamePiece = new cell(30,30,"red",10,120);
 }
-gins.forEach(gin => {
-    gin.forEach(g => {
-        g.onmouseover = function(){
-            let col = `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`
-            g.style.backgroundColor=col;
-        }
-        g.onmousedown = function(){
-            g.innerHTML = "clicked";
-        }
-    });
-});
+var gameArea = {
+	canvas:document.getElementById("game"),
+	start:function(){
+		this.canvas.width=480;
+		this.canvas.height=270;
+		this.context=this.canvas.getContext("2d");
+		document.body.insertBefore(this.canvas,document.body.childNodes[0]);
+	this.interval = setInterval(updateGame,20);
+	},
+	clear:function(){
+		this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+	}
+}
+function cell(width,height,color,x,y){
+	this.width = width;
+	this.height = height;
+	this.x = x;
+	this.y = y;
+	this.update = function(){
+		ctx = gameArea.context;
+		ctx.fillStyle=color;
+		ctx.fillRect(this.x,this.y,this.width,this.height);
+	}
+}
+function updateGame(){
+	gameArea.clear();
+	gamePiece.x += 1;
+	gamePiece.update();
+}
+startGame();

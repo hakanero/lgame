@@ -1,4 +1,4 @@
-body{
+﻿body{
     background-image: url('https://image.freepik.com/free-photo/white-concrete-wall_53876-92803.jpg');
     background-attachment: fixed;
 }
@@ -12,15 +12,10 @@ body{
 }
 #game{
     border:solid thick;
-    margin:auto;
 }
 #game-div{
     float: left;
     width: 60%;
-}
-.gi{
-    border: solid thin;
-    padding: 2em;
 }
 #hi-score{
     float: left;
