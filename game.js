@@ -5,6 +5,8 @@ var cells = [];
 var n = 4;
 var cwdt;
 var chgt;
+var isDragging;
+var draggedCells = [];
 
 function startGame(){
 	createCells();
@@ -21,10 +23,13 @@ var gameArea = {
 	start:function(){
 		this.canvas.width = 512;
 		this.canvas.height = 512;
-		wdt = this.canvas.width/n;
-		chgt = this.canvas.height;
-		this.context=this.canvas.getContext("2d");
+		this.context = this.canvas.getContext("2d");
+		cwdt = this.canvas.width / n;
+		chgt = this.canvas.height / n;
 		this.interval = setInterval(updateGame,20);
+		this.canvas.addEventListener("mousemove",e=>procIn("mmove",e));
+		this.canvas.addEventListener("mousedown",e=>procIn("mdown",e));
+		this.canvas.addEventListener("mouseup",e=>procIn("mup",e));
 	},
 	clear:function(){
 		this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -32,14 +37,13 @@ var gameArea = {
 }
 
 function cell(color,i,j){
+	this.color = color;
 	this.i = i;
 	this.j = j;
-	this.x = i*cwdt;
-	this.y = j*chgt;
 	this.update = function(){
 		ctx = gameArea.context;
-		ctx.fillStyle = color;
-		ctx.fillRect(this.x,this.y,cwdt,chgt);
+		ctx.fillStyle = this.color;
+		ctx.fillRect(i*cwdt,j*chgt,cwdt,chgt);
 	}
 }
 
@@ -80,14 +84,45 @@ function checkL(pos){
 		cnt = cnt + count(ies,i) + count(jes,j);
 	}
 	if(cnt==16){
-		console.log("bu bir l");
+		return true;
 	}else{
-		console.log("bu bir l değil");
+		return false;
 	}
 }
 
-function procIn(mousepos){
-	console.log(mousepos);
+function isIn(arr,val){
+	for(var i=0;i<arr.length;i++){
+		if(arr[i]==val){
+			return true;
+		}
+	}
+	return false;
+}
+
+function procIn(type,val){
+	if(type=="mmove"){
+		if(isDragging){
+			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt);
+			if(!isIn(draggedCells,ind)){
+				draggedCells.push(ind);
+			}
+			if(draggedCells.length==4){
+				if(checkL(draggedCells.map(x=>cells[x]))){
+					for(var i=0;i<4;i++){
+						cells[draggedCells[i]].color = "green";
+					}
+				}
+				draggedCells=[];
+			}
+			cells[ind].color = "red";
+		}
+	}
+	if(type=="mdown"){
+		isDragging=true;
+	}
+	if(type=="mup"){
+		isDragging=false;
+	}
 }
 
 startGame();

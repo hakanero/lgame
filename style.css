@@ -12,7 +12,6 @@
 }
 #game{
     border:solid thick;
-    width:60%;
 }
 #game-div{
     float: left;
@@ -34,7 +33,7 @@ footer{
 	text-align:center;
 }
 @media screen and (orientation:portrait){
-	#game{
+	#game-div{
 		width:100%;
 	}
 	#hiscore-div,#timer-div{
