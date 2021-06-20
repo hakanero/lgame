@@ -5,12 +5,14 @@ var n = 4; //Number of cells in rows and columns
 var cwdt; //Width of cells
 var chgt; //Height of cells
 var isDragging; //Is the mouse being dragged
-var draggedCells = []; //The cells mouse is draged over
+var draggedCells = []; //The cells mouse is dragged over
 var playerTurn = false; //false->Player 1, true->Player 2
+var canvasRect;
+
 var colors={ //All the colors used in the game.
-	bgColor:"#F5F5F5",
-	p1Color:"#A4036F",
-	p2Color:"#048BA8",
+	bgColor:"#DAD6D6",
+	p1Color:"#92BFB1",
+	p2Color:"#F4AC45",
 	d1Color:"#EFEA5A",
 	d2Color:"#F29E4C"
 
@@ -39,10 +41,14 @@ var gameArea = {
 		this.context = this.canvas.getContext("2d");
 		cwdt = this.canvas.width / n; //Set the width of cells
 		chgt = this.canvas.height / n; //Set the height of cells
+		canvasRect = this.canvas.getBoundingClientRect();
 		this.interval = setInterval(updateGame,50); //Set the framerate (20 fps)
 		this.canvas.addEventListener("mousemove",e=>procIn("mmove",e)); //On mouse move
 		this.canvas.addEventListener("mousedown",e=>procIn("mdown",e)); //On mouse down
 		this.canvas.addEventListener("mouseup",e=>procIn("mup",e)); //On mouse up
+		this.canvas.addEventListener("touchmove",e=>procIn("tmove",e)); //On touch move
+		this.canvas.addEventListener("touchstart",e=>procIn("tdown",e)); //On touch down
+		this.canvas.addEventListener("touchend",e=>procIn("tup",e)); //On touch up
 	},
 	clear:function(){ //This function will clear the game area
 		this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
@@ -95,6 +101,8 @@ function checkL(pos){
 	}
 	var ies = pos.map(x=>x.i);
 	var jes = pos.map(x=>x.j);
+	ies.sort();
+	jes.sort();
 	var cnt = 0;
 	for(var c=0;c<4;c++){
 		var i=pos[c].i;
@@ -118,6 +126,15 @@ function isIn(arr,val){
 	return false;
 }
 
+//Function to find sum of all elements in a list
+function sum(arr){
+	var res = 0;
+	for(var i=0;i<arr.length;i++){
+		res=res+arr[i];
+	}
+	return res;
+}
+
 //Change the current player
 function changePlayer(){
 	if(playerTurn){
@@ -134,6 +151,13 @@ function changePlayer(){
 
 //Function to process input
 function procIn(type,val){
+	if(type=="tmove"){
+		type="mmove";
+		console.log(val);
+		val.preventDefault();
+		val.offsetX = val.touches[0].clientX - canvasRect.left;
+		val.offsetY = val.touches[0].clientY - canvasRect.top;
+	}
 	if(type=="mmove"){
 		if(isDragging){
 			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse
@@ -160,10 +184,10 @@ function procIn(type,val){
 			}
 		}
 	}
-	if(type=="mdown"){
+	if(type=="mdown"||type=="tdown"){
 		isDragging=true;
 	}
-	if(type=="mup"){
+	if(type=="mup"||type=="tup"){
 		isDragging=false;
 	}
 }

@@ -1,11 +1,11 @@
 ﻿:root{
-	--title-color:#16DB93;
-	--text-color:#000000;
+	--title-color:#A61C3C;
+	--text-color:#694A38;
+	--background-color:#DAD6D6;
 }
 
 body{
-    background-image: url('https://image.freepik.com/free-photo/white-concrete-wall_53876-92803.jpg');
-    background-attachment: fixed;
+    background-color:var(--background-color);
     color:var(--text-color);
 }
 .baslik{
