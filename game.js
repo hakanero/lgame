@@ -1,4 +1,6 @@
 ﻿//L Game
+//Code may be unnecessirally long, will optimize it soon
+//written by haqan
 
 var cells = []; //All the cells in the grid. This list is filled by the "createCells" function
 var n = 4; //Number of cells in rows and columns
@@ -10,6 +12,60 @@ var playerTurn = false; //false->Player 1, true->Player 2
 var canvasSizeConst = 512/1366;
 var canvasRect;
 var bodyRect;
+var pmoves = document.getElementById("pmoves");
+
+//All possible moves
+const allMoves = 
+	[
+		  [ [ 0, 0 ], [ 0, 1 ], [ 0, 2 ], [ 1, 0 ] ],
+		  [ [ 0, 0 ], [ 0, 1 ], [ 0, 2 ], [ 1, 2 ] ],
+		  [ [ 0, 1 ], [ 0, 2 ], [ 0, 3 ], [ 1, 1 ] ],
+		  [ [ 0, 1 ], [ 0, 2 ], [ 0, 3 ], [ 1, 3 ] ],
+		  [ [ 1, 0 ], [ 1, 1 ], [ 1, 2 ], [ 0, 0 ] ],
+		  [ [ 1, 0 ], [ 1, 1 ], [ 1, 2 ], [ 0, 2 ] ],
+		  [ [ 1, 0 ], [ 1, 1 ], [ 1, 2 ], [ 2, 0 ] ],
+		  [ [ 1, 0 ], [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ],
+		  [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 0, 1 ] ],
+		  [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 0, 3 ] ],
+		  [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 2, 1 ] ],
+		  [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 2, 3 ] ],
+		  [ [ 2, 0 ], [ 2, 1 ], [ 2, 2 ], [ 1, 0 ] ],
+		  [ [ 2, 0 ], [ 2, 1 ], [ 2, 2 ], [ 1, 2 ] ],
+		  [ [ 2, 0 ], [ 2, 1 ], [ 2, 2 ], [ 3, 0 ] ],
+		  [ [ 2, 0 ], [ 2, 1 ], [ 2, 2 ], [ 3, 2 ] ],
+		  [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 1, 1 ] ],
+		  [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 1, 3 ] ],
+		  [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 1 ] ],
+		  [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 3 ] ],
+		  [ [ 3, 0 ], [ 3, 1 ], [ 3, 2 ], [ 2, 0 ] ],
+		  [ [ 3, 0 ], [ 3, 1 ], [ 3, 2 ], [ 2, 2 ] ],
+		  [ [ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 2, 1 ] ],
+		  [ [ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 2, 3 ] ],
+		  [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 0, 1 ] ],
+		  [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 2, 1 ] ],
+		  [ [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 0, 0 ] ],
+		  [ [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 2, 0 ] ],
+		  [ [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 0, 2 ] ],
+		  [ [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 2, 2 ] ],
+		  [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 0, 1 ] ],
+		  [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 2, 1 ] ],
+		  [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 0, 3 ] ],
+		  [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 2, 3 ] ],
+		  [ [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 0, 2 ] ],
+		  [ [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 2, 2 ] ],
+		  [ [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 1, 1 ] ],
+		  [ [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 3, 1 ] ],
+		  [ [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 1, 0 ] ],
+		  [ [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 3, 0 ] ],
+		  [ [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 1, 2 ] ],
+		  [ [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 3, 2 ] ],
+		  [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 1 ] ],
+		  [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 3, 1 ] ],
+		  [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 3 ] ],
+		  [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 3, 3 ] ],
+		  [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 1, 2 ] ],
+		  [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 3, 2 ] ]
+	]
 
 var colors={ //All the colors used in the game.
 	bgColor:"#DAD6D6",
@@ -169,15 +225,15 @@ function procIn(type,val){
 		val.offsetY = val.touches[0].clientY - canvasRect.top;
 	}
 	if(type=="mmove"){
-		if(isDragging&&val.offsetX>=0&&val.offsetY>=0){
+		if(isDragging&&val.offsetX>=0&&val.offsetY>=0&&val.offsetX<=canvasRect.width&&val.offsetY<=canvasRect.height){
 			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse	
-			if(!isIn(draggedCells,ind)){
-				if(!(isIn(Object.values(colors),cells[ind].color) &&  cells[ind].color != colors.bgColor)){
-					if(isAdjacent(cells[draggedCells[draggedCells.length-1]],cells[ind])||draggedCells.length==0){
+			if((!isIn(draggedCells,ind))){ 
+				if((!(isIn(Object.values(colors),cells[ind].color) &&  cells[ind].color != colors.bgColor))){
+					if((isAdjacent(cells[draggedCells[draggedCells.length-1]],cells[ind])||draggedCells.length==0)){
 						draggedCells.push(ind);
 						cells[ind].color = curDrgColor;
-					}
-				}
+					}else{stopDrag();}
+				}else{stopDrag();}
 			}
 			if(draggedCells.length==4){
 				if(checkL(draggedCells.map(x=>cells[x]))){
@@ -189,8 +245,11 @@ function procIn(type,val){
 					stopDrag();
 				}
 				draggedCells.length=0;
+				pmoves.innerHTML = "Yapılabilecek hamle sayısı: "+calculateMoves().length;
 				changePlayer();
 			}
+		}else{
+			stopDrag();
 		}
 	}
 	if(type=="mdown"||type=="tdown"){
@@ -201,17 +260,30 @@ function procIn(type,val){
 	}
 }
 
+//Check if two cells are adjacent to each other
 function isAdjacent(cell1,cell2){
 	if(cell1===undefined || cell2===undefined){return false;}
-	return isIn([-1,1],cell1.i-cell2.i)!=isIn([-1,1],cell1.j-cell2.j);
+	return isIn([-1,1],(cell1.i-cell2.i))!=isIn([-1,1],(cell1.j-cell2.j));
 }
 
+//Stop dragging the mouse
 function stopDrag(){
 	isDragging = false;
 	for(var i=0;i<draggedCells.length;i++){
 		cells[draggedCells[i]].color = colors.bgColor;
 	}
 	draggedCells.length=0;
+}
+
+function calculateMoves(){
+	var possibleMoves = [];
+	for(var a=0;a<48;a++) for(var b=0;b<4;b++){
+		if(cells[allMoves[a][b][0]*n+allMoves[a][b][1]].color == colors.bgColor){
+			continue;
+		}
+		possibleMoves.push(allMoves[a]);
+	}
+	return possibleMoves;
 }
 
 startGame();
