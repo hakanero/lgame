@@ -7,14 +7,16 @@ var chgt; //Height of cells
 var isDragging; //Is the mouse being dragged
 var draggedCells = []; //The cells mouse is dragged over
 var playerTurn = false; //false->Player 1, true->Player 2
+var canvasSizeConst = 512/1366;
 var canvasRect;
+var bodyRect;
 
 var colors={ //All the colors used in the game.
 	bgColor:"#DAD6D6",
 	p1Color:"#92BFB1",
 	p2Color:"#F4AC45",
-	d1Color:"#EFEA5A",
-	d2Color:"#F29E4C"
+	d1Color:"#BFD9D1",
+	d2Color:"#F9D49F",
 
 };
 var curPlrColor = colors.p1Color; //The current player color
@@ -36,8 +38,9 @@ function updateGame(){
 var gameArea = {	
 	canvas:document.getElementById("game"), //Canvas element
 	start:function(){ //This function will set the game area, creating necessary variables etc.
-		this.canvas.width = 512;
-		this.canvas.height = 512;
+		bodyRect = document.body.getBoundingClientRect;
+		this.canvas.width = canvasSizeConst * bodyRect.width;
+		this.canvas.height = this.canvas.width;
 		this.context = this.canvas.getContext("2d");
 		cwdt = this.canvas.width / n; //Set the width of cells
 		chgt = this.canvas.height / n; //Set the height of cells
@@ -83,6 +86,17 @@ function drawCells(){
 	}
 }
 
+//Refresh variables when screen size changes
+function resize(){
+	bodyRect = document.body.getBoundingClientRect();
+	canvasSizeConst = (document.documentElement.clientWidth>document.documentElement.clientHeight) ? (512/1366) : (512/612);
+	gameArea.canvas.width = canvasSizeConst * bodyRect.width;
+	gameArea.canvas.height = gameArea.canvas.width;
+	cwdt = gameArea.canvas.width / n;
+	chgt = gameArea.canvas.height / n;
+	canvasRect = gameArea.canvas.getBoundingClientRect();
+}
+
 //function to count the number of an element in a list
 function count(arr,thing){
 	var c = 0;
@@ -96,24 +110,20 @@ function count(arr,thing){
 
 //Function to check if the given cells make an L shape
 function checkL(pos){
-	if(pos.length!=4){
-		return false;
-	}
-	var ies = pos.map(x=>x.i);
-	var jes = pos.map(x=>x.j);
-	ies.sort();
-	jes.sort();
-	var cnt = 0;
+	if(pos.length!=4){return false;}
+	var rows = [0,0,0,0];
+	var cols = [0,0,0,0];
+	var minrow=mincol=3,maxrow=maxcol=0;
 	for(var c=0;c<4;c++){
-		var i=pos[c].i;
-		var j=pos[c].j;
-		cnt = cnt + count(ies,i) + count(jes,j);
+		var i=pos[c].i,j=pos[c].j;
+		rows[i]++;
+		cols[j]++;
+		minrow = Math.min(minrow,i);
+		maxrow = Math.max(maxrow,i);
+		mincol = Math.min(mincol,j);
+		maxcol = Math.max(maxcol,j);
 	}
-	if(cnt==16){
-		return true;
-	}else{
-		return false;
-	}
+	return (isIn(rows,3) && (cols[mincol] == 2 || cols[maxcol] == 2)) || (isIn(cols,3) && (rows[minrow] == 2 || rows[maxrow] == 2));
 }
 
 //Function to check if an element is in the list
@@ -159,12 +169,14 @@ function procIn(type,val){
 		val.offsetY = val.touches[0].clientY - canvasRect.top;
 	}
 	if(type=="mmove"){
-		if(isDragging){
-			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse
+		if(isDragging&&val.offsetX>=0&&val.offsetY>=0){
+			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse	
 			if(!isIn(draggedCells,ind)){
 				if(!(isIn(Object.values(colors),cells[ind].color) &&  cells[ind].color != colors.bgColor)){
-					draggedCells.push(ind);
-					cells[ind].color = curDrgColor;
+					if(isAdjacent(cells[draggedCells[draggedCells.length-1]],cells[ind])||draggedCells.length==0){
+						draggedCells.push(ind);
+						cells[ind].color = curDrgColor;
+					}
 				}
 			}
 			if(draggedCells.length==4){
@@ -174,10 +186,7 @@ function procIn(type,val){
 					}
 				}
 				else{
-					isDragging=false;
-					for(var i=0;i<4;i++){
-						cells[draggedCells[i]].color = colors.bgColor;
-					}
+					stopDrag();
 				}
 				draggedCells.length=0;
 				changePlayer();
@@ -188,8 +197,21 @@ function procIn(type,val){
 		isDragging=true;
 	}
 	if(type=="mup"||type=="tup"){
-		isDragging=false;
+		stopDrag();
 	}
+}
+
+function isAdjacent(cell1,cell2){
+	if(cell1===undefined || cell2===undefined){return false;}
+	return isIn([-1,1],cell1.i-cell2.i)!=isIn([-1,1],cell1.j-cell2.j);
+}
+
+function stopDrag(){
+	isDragging = false;
+	for(var i=0;i<draggedCells.length;i++){
+		cells[draggedCells[i]].color = colors.bgColor;
+	}
+	draggedCells.length=0;
 }
 
 startGame();
