@@ -7,8 +7,6 @@
 body{
     background-color:var(--background-color);
     color:var(--text-color);
-}
-.baslik{
     font-family: 'Architects Daughter',cursive;
 }
 #l-name{
@@ -39,6 +37,37 @@ footer{
 .container{
 	text-align:center;
 }
+.control-button {
+	background-color:var(--title-color);
+	border:2px solid var(--text-color);
+	display:inline-block;
+	cursor:pointer;
+	color:var(--background-color);
+	font-size:15px;
+	font-weight:bold;
+	padding:9px 23px;
+	text-decoration:none;
+	text-shadow:0px -1px 0px #7a2a1d;
+}
+
+.control-button:hover {
+	border:1px dotted var(--text-color);
+}
+
+.control-button:active {
+	position:relative;
+	top:1px;
+}
+
+#game-control{
+	width:100%;
+	border: 2px dotted var(--text-color);
+}
+										
+
+
+
+
 @media screen and (orientation:portrait){
 	#game-div{
 		width:100%;

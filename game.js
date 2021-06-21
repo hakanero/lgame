@@ -13,6 +13,22 @@ var canvasSizeConst = 512/1366;
 var canvasRect;
 var bodyRect;
 var pmoves = document.getElementById("pmoves");
+var skipb = document.getElementById("skip-button");
+var newgb = document.getElementById("new-button");
+var neutrMove = false;
+var colors={ //All the colors used in the game.
+	bgColor:"#DAD6D6",
+	p1Color:"#92BFB1",
+	p2Color:"#F4AC45",
+	d1Color:"#BFD9D1",
+	d2Color:"#F9D49F",
+	ntColor:"#000000",
+};
+var curPlrColor = colors.p1Color; //The current player color
+var curDrgColor = colors.d1Color; //The current color of the cells which are dragged over.
+var prePlrColor = colors.p2Color; //Previous player's color
+var preDrgColor = colors.d2Color; //Previous player's drag color
+var noMoveColors = [colors.p1Color,colors.p2Color,colors.ntColor];
 
 //All possible moves
 const allMoves = 
@@ -65,18 +81,8 @@ const allMoves =
 		  [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 3, 3 ] ],
 		  [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 1, 2 ] ],
 		  [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 3, 2 ] ]
-	]
+	];
 
-var colors={ //All the colors used in the game.
-	bgColor:"#DAD6D6",
-	p1Color:"#92BFB1",
-	p2Color:"#F4AC45",
-	d1Color:"#BFD9D1",
-	d2Color:"#F9D49F",
-
-};
-var curPlrColor = colors.p1Color; //The current player color
-var curDrgColor = colors.d1Color; //The current color of the cells which are dragged over.
 
 //Start the Game. Runs once
 function startGame(){
@@ -148,6 +154,8 @@ function resize(){
 	canvasSizeConst = (document.documentElement.clientWidth>document.documentElement.clientHeight) ? (512/1366) : (512/612);
 	gameArea.canvas.width = canvasSizeConst * bodyRect.width;
 	gameArea.canvas.height = gameArea.canvas.width;
+	document.querySelector("#game-div").style.width = (canvasSizeConst*100).toString() +"%";
+	document.querySelector("#timer-div").style.width = document.querySelector("#hiscore-div").style.width = ((1-canvasSizeConst)*50).toString() + "%";
 	cwdt = gameArea.canvas.width / n;
 	chgt = gameArea.canvas.height / n;
 	canvasRect = gameArea.canvas.getBoundingClientRect();
@@ -206,58 +214,76 @@ function changePlayer(){
 	if(playerTurn){
 		curPlrColor = colors.p1Color;
 		curDrgColor = colors.d1Color;
+		prePlrColor = colors.p2Color;
+		preDrgColor = colors.d2Color;
 	}
 	else{
 		curPlrColor = colors.p2Color;
 		curDrgColor = colors.d2Color;
+		prePlrColor = colors.p1Color;
+		preDrgColor = colors.d1Color;
 	}
 	playerTurn = !playerTurn;
+	delCurL();
 
 }
 
 //Function to process input
 function procIn(type,val){
+	var ind;
 	if(type=="tmove"){
 		type="mmove";
-		console.log(val);
 		val.preventDefault();
 		val.offsetX = val.touches[0].clientX - canvasRect.left;
 		val.offsetY = val.touches[0].clientY - canvasRect.top;
 	}
 	if(type=="mmove"){
-		if(isDragging&&val.offsetX>=0&&val.offsetY>=0&&val.offsetX<=canvasRect.width&&val.offsetY<=canvasRect.height){
-			var ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse	
-			if((!isIn(draggedCells,ind))){ 
-				if((!(isIn(Object.values(colors),cells[ind].color) &&  cells[ind].color != colors.bgColor))){
-					if((isAdjacent(cells[draggedCells[draggedCells.length-1]],cells[ind])||draggedCells.length==0)){
-						draggedCells.push(ind);
-						cells[ind].color = curDrgColor;
+		if(!neutrMove){
+			if(isDragging&&val.offsetX>=0&&val.offsetY>=0&&val.offsetX<=canvasRect.width&&val.offsetY<=canvasRect.height){
+				moveL:{
+				ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt); //Current position of the mouse	
+				if((!isIn(draggedCells,ind))){ 
+					if(!isIn(noMoveColors,cells[ind].color)){
+						if((isAdjacent(cells[draggedCells[draggedCells.length-1]],cells[ind])||draggedCells.length==0)){
+							draggedCells.push(ind);
+							cells[ind].color = curPlrColor;
+						}else{stopDrag();}
 					}else{stopDrag();}
-				}else{stopDrag();}
-			}
-			if(draggedCells.length==4){
-				if(checkL(draggedCells.map(x=>cells[x]))){
-					for(var i=0;i<4;i++){
-						cells[draggedCells[i]].color = curPlrColor;
+				}
+				if(draggedCells.length==4){
+					if(checkL(draggedCells.map(x=>cells[x]))){
+						endMove();
+					}
+					else{
+						stopDrag();
 					}
 				}
-				else{
-					stopDrag();
 				}
-				draggedCells.length=0;
-				pmoves.innerHTML = "Yapılabilecek hamle sayısı: "+calculateMoves().length;
-				changePlayer();
+			}else{
+				stopDrag();
 			}
-		}else{
-			stopDrag();
 		}
 	}
 	if(type=="mdown"||type=="tdown"){
 		isDragging=true;
+		if(neutrMove){
+			moveN:{
+				ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt);
+				cells[ind].color = colors.ntColor;
+				neutrMove=false;
+			}
+		}
 	}
 	if(type=="mup"||type=="tup"){
 		stopDrag();
 	}
+}
+
+//Runs when L is drawn
+function endMove(){
+	draggedCells.length=0;
+	pmoves.innerHTML = "Yapılabilecek hamle sayısı: "+calculateMoves().length;
+	neutrMove=true;
 }
 
 //Check if two cells are adjacent to each other
@@ -275,15 +301,49 @@ function stopDrag(){
 	draggedCells.length=0;
 }
 
+//Calculate all possible moves
 function calculateMoves(){
 	var possibleMoves = [];
-	for(var a=0;a<48;a++) for(var b=0;b<4;b++){
-		if(cells[allMoves[a][b][0]*n+allMoves[a][b][1]].color == colors.bgColor){
-			continue;
+	var pass = false;
+	possibleMoves.length=0;
+	for(var a=0;a<48;a++){
+		for(var b=0;b<4;b++){
+			if(isIn(noMoveColors,cells[(allMoves[a][b][0]*n)+allMoves[a][b][1]].color)){
+				pass=true;
+			}
 		}
-		possibleMoves.push(allMoves[a]);
+		if(!pass){
+			possibleMoves.push(allMoves[a]);
+		}
+		pass=false;
 	}
 	return possibleMoves;
+}
+
+function colorCells(cll){
+	for(var i=0;i<cll.length;i++){
+		cells[cll[i]].color = curPlrColor;
+	}
+}
+
+function delCurL(){
+	for(var i=0;i<cells.length;i++){
+		if(cells[i].color==curPlrColor){
+			cells[i].color = curDrgColor;
+		}
+		if(cells[i].color==preDrgColor){
+			cells[i].color = colors.bgColor;
+		}
+	}
+}
+
+function comPlay(){
+	changePlayer();
+	var posMoves = calculateMoves();
+	var move = posMoves[Math.floor(Math.random()*posMoves.length)];
+	var ind = move.map(x=>(x[0]*n)+x[1]);
+	colorCells(ind);
+	changePlayer();
 }
 
 startGame();
