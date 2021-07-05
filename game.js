@@ -29,6 +29,10 @@ var curDrgColor = colors.d1Color; //The current color of the cells which are dra
 var prePlrColor = colors.p2Color; //Previous player's color
 var preDrgColor = colors.d2Color; //Previous player's drag color
 var noMoveColors = [colors.p1Color,colors.p2Color,colors.ntColor];
+var neutrPos = {
+	two:15,
+	one:0,
+};
 
 //All possible moves
 const allMoves = 
@@ -88,6 +92,7 @@ const allMoves =
 function startGame(){
 	createCells();
 	gameArea.start();
+	pmoves.innerHTML = "Yapılabilecek hamle sayısı: "+calculateMoves().length;
 }
 
 //Updates the game area. Runs every frame
@@ -269,7 +274,9 @@ function procIn(type,val){
 		if(neutrMove){
 			moveN:{
 				ind = Math.floor(val.offsetX/cwdt)*n+Math.floor(val.offsetY/chgt);
-				cells[ind].color = colors.ntColor;
+				if(curPlrColor==colors.p1Color){
+					
+				}
 				neutrMove=false;
 			}
 		}
@@ -284,6 +291,11 @@ function endMove(){
 	draggedCells.length=0;
 	pmoves.innerHTML = "Yapılabilecek hamle sayısı: "+calculateMoves().length;
 	neutrMove=true;
+}
+
+function drawN(){
+	cells[neutrPos.one].color = colors.ntColor;
+	cells[neutrPos.two].color = colors.ntColor;
 }
 
 //Check if two cells are adjacent to each other
@@ -308,7 +320,7 @@ function calculateMoves(){
 	possibleMoves.length=0;
 	for(var a=0;a<48;a++){
 		for(var b=0;b<4;b++){
-			if(isIn(noMoveColors,cells[(allMoves[a][b][0]*n)+allMoves[a][b][1]].color)){
+			if(isIn(noMoveColors,cells[indfpos(allMoves[a][b])].color)){
 				pass=true;
 			}
 		}
@@ -341,9 +353,13 @@ function comPlay(){
 	changePlayer();
 	var posMoves = calculateMoves();
 	var move = posMoves[Math.floor(Math.random()*posMoves.length)];
-	var ind = move.map(x=>(x[0]*n)+x[1]);
+	var ind = move.map(x=>indfpos(x));
 	colorCells(ind);
 	changePlayer();
+}
+
+function indfpos(pos) = {
+	return (pos[0]*n)+pos[1];
 }
 
 startGame();
