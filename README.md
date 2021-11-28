@@ -8,4 +8,4 @@ Pieces may not overlap or cover other pieces. On moving the L piece, it is picke
 </p>
 
 This implementation is not complete.
-It is published <a href="h4qan.github.io/lgame">here</a>
+It is published in h4qan.github.io/lgame
